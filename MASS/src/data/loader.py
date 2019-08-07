@@ -13,7 +13,7 @@ import torch
 from .dataset import Dataset, StreamDataset, ParallelDataset
 from .dictionary import BOS_WORD, EOS_WORD, PAD_WORD, UNK_WORD, MASK_WORD
 
-import data_utils #local
+from .data_utils import download_file_from_google_drive, untar
 
 
 logger = getLogger()
@@ -280,8 +280,8 @@ def check_data_params(params):
         os.makedirs(params.data_path)
     if not os.path.exists(destination):
         print('Download data to [{}]'.format(destination))
-        data_utils.download_file_from_google_drive(file_id, destination)
-    data_utils.untar(destination)
+        download_file_from_google_drive(file_id, destination)
+    untar(destination)
 
     # data path
     assert os.path.isdir(params.data_path), params.data_path
