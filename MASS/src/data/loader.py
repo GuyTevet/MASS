@@ -13,6 +13,8 @@ import torch
 from .dataset import Dataset, StreamDataset, ParallelDataset
 from .dictionary import BOS_WORD, EOS_WORD, PAD_WORD, UNK_WORD, MASK_WORD
 
+import data_utils #local
+
 
 logger = getLogger()
 
@@ -270,6 +272,17 @@ def check_data_params(params):
     """
     Check datasets parameters.
     """
+
+    # download gigaword
+    file_id = '0B6N7tANPyVeBNmlSX19Ld2xDU1E'
+    destination = os.path.join(params.data_path, 'gigaword.tar')
+    if not os.path.isdir(params.data_path):
+        os.makedirs(params.data_path)
+    if not os.path.exists(destination):
+        print('Download data to [{}]'.format(destination))
+        data_utils.download_file_from_google_drive(file_id, destination)
+    data_utils.untar(destination)
+
     # data path
     assert os.path.isdir(params.data_path), params.data_path
 
