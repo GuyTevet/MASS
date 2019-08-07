@@ -13,7 +13,7 @@ import torch
 from .dataset import Dataset, StreamDataset, ParallelDataset
 from .dictionary import BOS_WORD, EOS_WORD, PAD_WORD, UNK_WORD, MASK_WORD
 
-from .data_utils import download_file_from_google_drive, untar
+from .data_utils import download_file_from_google_drive, untar, download_files
 
 
 logger = getLogger()
@@ -282,6 +282,12 @@ def check_data_params(params):
         print('Download data to [{}]'.format(destination))
         download_file_from_google_drive(file_id, destination)
     untar(destination)
+
+    # download pretrain
+    if params.reload_model != '':
+        download_files('https://modelrelease.blob.core.windows.net/mass/',params.reload_model.split(','),os.getcwd())
+
+
 
     # data path
     assert os.path.isdir(params.data_path), params.data_path

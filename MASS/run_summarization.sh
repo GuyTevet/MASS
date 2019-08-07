@@ -1,4 +1,5 @@
-MODEL=mass_en_1024.pth 
+# MODEL=mass_en_1024.pth
+MODEL=mass_summarization_1024.pth
 
 python train.py                                      \
 --exp_name mass_summarization                        \
