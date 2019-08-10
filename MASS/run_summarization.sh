@@ -3,7 +3,7 @@ MODEL=mass_summarization_1024.pth
 
 python train.py                                      \
 --exp_name mass_summarization                        \
---data_path ./data/processed/summarization/          \
+--data_path ./data/processed/giga/                   \
 --lgs 'ar-ti'                                        \
 --mt_steps 'ar-ti'                                   \
 --encoder_only false                                 \

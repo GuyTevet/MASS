@@ -208,10 +208,15 @@ def main(params):
     params = parser.parse_args()
     models_path = params.model_path.split(',')
 
+    #choose device
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    map_location = {'cuda:0': 'cpu'} if not torch.cuda.is_available() else None
+
     # generate parser / parse parameters
     models_reloaded = []
     for model_path in models_path:
-        models_reloaded.append(torch.load(model_path))
+        # models_reloaded.append(torch.load(model_path))
+        models_reloaded.append(torch.load(model_path, map_location=map_location))
     model_params = AttrDict(models_reloaded[0]['params'])
     logger.info("Supported languages: %s" % ", ".join(model_params.lang2id.keys()))
 
@@ -237,8 +242,10 @@ def main(params):
         return state_dict
 
     for reloaded in models_reloaded:
-        encoder = TransformerModel(model_params, dico, is_encoder=True, with_output=True).cuda().eval()
-        decoder = TransformerModel(model_params, dico, is_encoder=False, with_output=True).cuda().eval()
+        # encoder = TransformerModel(model_params, dico, is_encoder=True, with_output=True).cuda().eval()
+        # decoder = TransformerModel(model_params, dico, is_encoder=False, with_output=True).cuda().eval()
+        encoder = TransformerModel(model_params, dico, is_encoder=True, with_output=True).to(device).eval()
+        decoder = TransformerModel(model_params, dico, is_encoder=False, with_output=True).to(device).eval()
         encoder.load_state_dict(package_module(reloaded['encoder']))
         decoder.load_state_dict(package_module(reloaded['decoder']))
 
@@ -251,7 +258,8 @@ def main(params):
         encoders.append(encoder)
         decoders.append(decoder)
     
-    #src_sent = ['Poly@@ gam@@ ie statt Demokratie .']
+    # src_sent = ['Poly@@ gam@@ ie statt Demokratie .']
+    # src_sent = ['Trump was born and raised in the New York City borough of Queens, and received an economics degree from the Wharton School. He took charge of his familys real estate business in 1971, renamed it The Trump Organization, and expanded it from Queens and Brooklyn into Manhattan.']
     src_sent = []
     for line in sys.stdin.readlines():
         assert len(line.strip().split()) > 0
@@ -276,13 +284,15 @@ def main(params):
         # encode source batch and translate it
         encodeds = []
         for encoder in encoders:
-            encoded = encoder('fwd', x=batch.cuda(), lengths=lengths.cuda(), langs=langs.cuda(), causal=False)
+            # encoded = encoder('fwd', x=batch.cuda(), lengths=lengths.cuda(), langs=langs.cuda(), causal=False)
+            encoded = encoder('fwd', x=batch.to(device), lengths=lengths.to(device), langs=langs.to(device), causal=False)
             encoded = encoded.transpose(0, 1)
             encodeds.append(encoded)
 
             assert encoded.size(0) == lengths.size(0)
-            
-        decoded, dec_lengths = generate_beam(decoders, encodeds, lengths.cuda(), params.tgt_id, 
+
+        decoded, dec_lengths = generate_beam(decoders, encodeds, lengths.to(device), params.tgt_id,
+        # decoded, dec_lengths = generate_beam(decoders, encodeds, lengths.cuda(), params.tgt_id,
                       beam_size=params.beam,
                       length_penalty=params.length_penalty,
                       early_stopping=False,
