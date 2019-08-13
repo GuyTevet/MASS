@@ -157,6 +157,12 @@ def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size,
         # update current length
         cur_len = cur_len + 1
 
+    # end unfinished sentences
+    for sent_id in range(bs):
+        if not done[sent_id]:
+            decoded[-1][sent_id] = params.eos_index
+
+
     # sanity check
     assert (decoded == params.eos_index).sum() == 2 * bs # check that you have 2 eos tokes per sentence
 
@@ -393,7 +399,7 @@ def main(params):
                       beam_size=params.beam,
                       length_penalty=params.length_penalty,
                       early_stopping=False,
-                      max_len=400, # int(1.5 * lengths.max().item() + 10),
+                      max_len= 15 + 2, #int(1.5 * lengths.max().item() + 10),
                       params=params)
 
         # convert sentences to words
