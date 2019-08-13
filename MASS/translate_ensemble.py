@@ -61,8 +61,9 @@ def get_parser():
     parser.add_argument("--tgt_lang", type=str, default="", help="Target language")
 
     # sampling method
-    parser.add_argument("--uni_sampling", action='store_true', help='Activite to use uniform sampling instead of a beam search')
-    parser.add_argument("--samples_per_source", type=int, default=1, help='Number of samples per source sentece')
+    parser.add_argument("--uni_sampling", action='store_true', help='Activite to use uniform sampling instead of a beam search.')
+    parser.add_argument("--samples_per_source", type=int, default=1, help='Number of samples per source sentece.')
+    parser.add_argument("--temperature", type=float, default=1., help='Softmax temperature. Relevant for uniform sampling onnly.')
 
     return parser
 
@@ -121,7 +122,7 @@ def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size,
             tensor = tensor.data[-1, :, :]  # (bs * beam_size, dim)
             scores = decoder.pred_layer.get_scores(tensor)  # (bs * beam_size, n_words)
             scores = F.softmax(scores, dim=-1)  # (bs * beam_size, n_words)
-            samples = torch.multinomial(scores, 1).t()
+            samples = torch.multinomial(scores / params.temperature, 1).t()
 
             for i in range(bs):
                 if done[i]:
