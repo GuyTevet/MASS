@@ -393,7 +393,8 @@ def main(params):
                       beam_size=params.beam,
                       length_penalty=params.length_penalty,
                       early_stopping=False,
-                      max_len=int(1.5 * lengths.max().item() + 10), params=params)
+                      max_len=400, # int(1.5 * lengths.max().item() + 10),
+                      params=params)
 
         # convert sentences to words
         for j in range(decoded.size(1)): # for each sentence in batch
