@@ -62,6 +62,7 @@ def get_parser():
 
     # sampling method
     parser.add_argument("--uni_sampling", action='store_true', help='Activite to use uniform sampling instead of a beam search')
+    parser.add_argument("--samples_per_source", type=int, default=1, help='Number of samples per source sentece')
 
     return parser
 
@@ -359,7 +360,7 @@ def main(params):
     src_sent = []
     for line in sys.stdin.readlines():
         assert len(line.strip().split()) > 0
-        src_sent.append(line)
+        src_sent +=[line] * params.samples_per_source
 
     f = io.open(params.output_path, 'w', encoding='utf-8')
 
@@ -380,7 +381,6 @@ def main(params):
         # encode source batch and translate it
         encodeds = []
         for encoder in encoders:
-            # encoded = encoder('fwd', x=batch.cuda(), lengths=lengths.cuda(), langs=langs.cuda(), causal=False)
             encoded = encoder('fwd', x=batch.to(device), lengths=lengths.to(device), langs=langs.to(device), causal=False)
             encoded = encoded.transpose(0, 1)
             encodeds.append(encoded)
