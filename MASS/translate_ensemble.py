@@ -60,7 +60,105 @@ def get_parser():
     parser.add_argument("--src_lang", type=str, default="", help="Source language")
     parser.add_argument("--tgt_lang", type=str, default="", help="Target language")
 
+    # sampling method
+    parser.add_argument("--uni_sampling", action='store_true', help='Activite to use uniform sampling instead of a beam search')
+
     return parser
+
+def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size, length_penalty, early_stopping, max_len=200, params=None):
+    assert params is not None
+
+    beam_size = 1 # override since there is no beam
+    bs = len(src_len)
+    n_words = params.n_words
+
+    src_len = src_len.unsqueeze(1).expand(bs, beam_size).contiguous().view(-1)
+    for i in range(len(src_encodeds)):
+        src_encodeds[i] = src_encodeds[i].unsqueeze(1).expand(
+            (bs, beam_size) + src_encodeds[i].shape[1:]).contiguous().view(
+            (bs * beam_size,) + src_encodeds[i].shape[1:])
+
+
+    # generated will hold the geerated titles, init wis the pad index and <eos> at the start of each sample
+    generated = src_len.new(max_len, bs * beam_size) # [max_len, bs]
+    generated.fill_(params.pad_index)
+    generated[0].fill_(params.eos_index)
+
+    # generated_hyps = [BeamHypotheses(beam_size, max_len, length_penalty, early_stopping) for _ in range(bs)]
+
+    positions = src_len.new(max_len).long() # holds the position for each index (for transformer block) [max_len, 2]
+    positions = torch.arange(max_len, out=positions).unsqueeze(1).expand_as(generated)
+
+    langs = positions.clone().fill_(tgt_lang_id)
+    # beam_scores = src_encodeds[0].new(bs, beam_size).fill_(0)
+    # beam_scores[:, 1:] = -1e9
+    # beam_scores = beam_scores.view(-1)
+
+    cur_len = 1
+    caches = [{'slen': 0} for i in range(len(decoders))]
+    done = [False for _ in range(bs)]
+    tgt_len = src_len.new(bs).fill_(max_len)
+
+    decoded = src_len.new(1, bs).fill_(params.eos_index)
+
+    while cur_len < max_len:
+        avg_scores = []
+        # avg_scores = None
+        for i, (src_enc, decoder) in enumerate(zip(src_encodeds, decoders)):
+            tensor = decoder.forward(
+                'fwd',
+                x=generated[:cur_len],
+                lengths=src_len.new(bs * beam_size).fill_(cur_len),
+                positions=positions[:cur_len],
+                langs=langs[:cur_len],
+                causal=True,
+                src_enc=src_enc,
+                src_len=src_len,
+                cache=caches[i]
+            )
+            assert tensor.size() == (1, bs * beam_size, decoder.dim)
+            tensor = tensor.data[-1, :, :]  # (bs * beam_size, dim)
+            scores = decoder.pred_layer.get_scores(tensor)  # (bs * beam_size, n_words)
+            scores = F.softmax(scores, dim=-1)  # (bs * beam_size, n_words)
+            samples = torch.multinomial(scores, 1).t()
+
+            for i in range(bs):
+                if done[i]:
+                    samples[0, i] = params.pad_index
+
+            generated[cur_len] = samples # update generated
+            decoded = torch.cat((decoded,samples),0) # add samples
+
+
+            # re-order batch and internal states
+            # generated = generated[:, beam_idx]
+            # generated[cur_len] = beam_words
+            for cache in caches:
+                for k in cache.keys():
+                    if k != 'slen':
+                        cache[k] = (cache[k][0], cache[k][1])
+
+            # mark done
+            for sent_id in range(bs):
+
+                is_eos = bool(decoded[cur_len][sent_id] == params.eos_index)
+
+                if is_eos and not done[sent_id]:
+                    tgt_len[sent_id] = cur_len + 1
+
+                done[sent_id] = done[sent_id] or is_eos
+
+        # exit if all done
+        if all(done):
+            break
+
+        # update current length
+        cur_len = cur_len + 1
+
+    # sanity check
+    assert (decoded == params.eos_index).sum() == 2 * bs # check that you have 2 eos tokes per sentence
+
+    return decoded, tgt_len
 
 
 def generate_beam(decoders, src_encodeds, src_len, tgt_lang_id, beam_size, length_penalty, early_stopping, max_len=200, params=None):
@@ -242,8 +340,6 @@ def main(params):
         return state_dict
 
     for reloaded in models_reloaded:
-        # encoder = TransformerModel(model_params, dico, is_encoder=True, with_output=True).cuda().eval()
-        # decoder = TransformerModel(model_params, dico, is_encoder=False, with_output=True).cuda().eval()
         encoder = TransformerModel(model_params, dico, is_encoder=True, with_output=True).to(device).eval()
         decoder = TransformerModel(model_params, dico, is_encoder=False, with_output=True).to(device).eval()
         encoder.load_state_dict(package_module(reloaded['encoder']))
@@ -259,7 +355,7 @@ def main(params):
         decoders.append(decoder)
     
     # src_sent = ['Poly@@ gam@@ ie statt Demokratie .']
-    # src_sent = ['Trump was born and raised in the New York City borough of Queens, and received an economics degree from the Wharton School. He took charge of his familys real estate business in 1971, renamed it The Trump Organization, and expanded it from Queens and Brooklyn into Manhattan.']
+    # src_sent += ['Trump was born and raised in the New York City borough of Queens, and received an economics degree from the Wharton School. He took charge of his familys real estate business in 1971, renamed it The Trump Organization, and expanded it from Queens and Brooklyn into Manhattan.']
     src_sent = []
     for line in sys.stdin.readlines():
         assert len(line.strip().split()) > 0
@@ -291,15 +387,15 @@ def main(params):
 
             assert encoded.size(0) == lengths.size(0)
 
-        decoded, dec_lengths = generate_beam(decoders, encodeds, lengths.to(device), params.tgt_id,
-        # decoded, dec_lengths = generate_beam(decoders, encodeds, lengths.cuda(), params.tgt_id,
+        gen_func = generate_uni_sample if params.uni_sampling else generate_beam
+        decoded, dec_lengths = gen_func(decoders, encodeds, lengths.to(device), params.tgt_id,
                       beam_size=params.beam,
                       length_penalty=params.length_penalty,
                       early_stopping=False,
                       max_len=int(1.5 * lengths.max().item() + 10), params=params)
 
         # convert sentences to words
-        for j in range(decoded.size(1)):
+        for j in range(decoded.size(1)): # for each sentence in batch
 
             # remove delimiters
             sent = decoded[:, j]
