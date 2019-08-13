@@ -121,8 +121,8 @@ def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size,
             assert tensor.size() == (1, bs * beam_size, decoder.dim)
             tensor = tensor.data[-1, :, :]  # (bs * beam_size, dim)
             scores = decoder.pred_layer.get_scores(tensor)  # (bs * beam_size, n_words)
-            scores = F.softmax(scores, dim=-1)  # (bs * beam_size, n_words)
-            samples = torch.multinomial(scores / params.temperature, 1).t()
+            scores = F.softmax(scores / params.temperature, dim=-1)  # (bs * beam_size, n_words)
+            samples = torch.multinomial(scores, 1).t()
 
             for i in range(bs):
                 if done[i]:
