@@ -1,3 +1,5 @@
+rocs=ROCStories # the path of your roc stories dataset
+
 # install tools
 if [ ! -e "./tools" ]; then
     echo "== Installing Tools =="
@@ -5,22 +7,29 @@ if [ ! -e "./tools" ]; then
 fi
 
 # download vocab + codes
-if [ ! -e "./tools" ]; then
+if [ ! -e "./vocab_en" ]; then
     echo "== Download vocab + codes =="
     wget "https://modelrelease.blob.core.windows.net/mass/vocab_en"
     wget "https://modelrelease.blob.core.windows.net/mass/codes_en"
 fi
 
 # download gigaword
-if [ ! -e "./ROCStories" ]; then
+if [ ! -e "./$rocs" ]; then
     echo "== Download ROC Stories =="
     mkdir ROCStories
-    wget https://goo.gl/0OYkPK -O ROCStories/ROCStories-2017.csv
-    wget https://goo.gl/7R59b1 -O ROCStories/ROCStories-2016.csv
+    wget https://goo.gl/0OYkPK -O $rocs/$rocs-2017.csv
+    wget https://goo.gl/7R59b1 -O $rocs/$rocs-2016.csv
+    python preprocess_rocstories.py --dirpath $rocs
 fi
 
-# process gigaword
-# TBD
+# process roc stories
+echo "== Process ROC Stories =="
+bash get-data-rocstories.sh \
+     --replace_ner true \
+     --replace_unk true \
+     --reload_vocab vocab_en \
+     --reload_codes codes_en \
+     --rocspath $rocs
 
 # download pre-trained model
 if [ ! -e "./mass_summarization_1024.pth" ]; then
