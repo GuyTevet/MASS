@@ -10,13 +10,17 @@ do
     esac
 done
 
+OUTPATH=./infer/output.txt.uni.sample${SAMPLES}.temp${TEMP}
+
 python translate_ensemble.py \
 --exp_name giga_test \
 --src_lang ar --tgt_lang ti \
 --beam 5 \
 --batch_size 32 \
 --model_path ./dumped/copy_mass_summarization/qtfpweuu4d/checkpoint.pth \
---output_path ./infer/output.txt.uni.sample${SAMPLES}.temp${TEMP} < ./data/processed/giga/test.ar-ti.ar \
+--output_path $OUTPATH < ./data/processed/giga/test.ar-ti.ar \
 --uni_sampling \
 --samples_per_source $SAMPLES \
---temperature $TEMP \
+--temperature $TEMP 
+
+sed -i -r 's/(@@ )|(@@ ?$)//g' $OUTPATH
