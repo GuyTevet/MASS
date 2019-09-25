@@ -6,8 +6,8 @@ def main(params):
 
     csv_list = [os.path.join(params.dirpath, f) for f in os.listdir(params.dirpath) if f.endswith('.csv')]
     assert len(csv_list) == 2 # 2017 & 2016 datasets
-    fp_in = [open(path, 'r') for path in csv_list]
-    fp_out = {'{}-{}'.format(_set, _part): open(os.path.join(params.dirpath, '{}.{}.txt'.format(_set, _part)), 'w')
+    fp_in = [open(path, 'r', encoding='utf-8') for path in csv_list]
+    fp_out = {'{}-{}'.format(_set, _part): open(os.path.join(params.dirpath, '{}.{}.txt'.format(_set, _part)), 'w', encoding='utf-8')
               for _set, _part in zip(['train', 'valid', 'test'] * 2, ['story'] * 3 + ['end'] *3 )}
     num_lines = sum(sum(1 for row in fp) - 1 for fp in fp_in) # substracting headlines
     [fp.seek(0) for fp in fp_in]
