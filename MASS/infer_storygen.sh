@@ -1,5 +1,5 @@
 SAMPLES=10
-TEMP=1.
+TEMP=1.0
 
 while getopts s:t: option
 do
@@ -9,6 +9,10 @@ do
         t) TEMP=${OPTARG};;
     esac
 done
+
+if [ ! -e "./infer" ]; then
+    mkdir infer
+fi
 
 OUTPATH=./infer/output.storygen.uni.sample${SAMPLES}.temp${TEMP}
 
