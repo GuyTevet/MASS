@@ -4,8 +4,8 @@ MODEL=mass_summarization_1024.pth
 python train.py                                      \
 --exp_name mass_storygen                        \
 --data_path ./data/processed/rocs/                   \
---lgs 'st-en'                                        \
---mt_steps 'st-en'                                   \
+--lgs 'sa-sb'                                        \
+--mt_steps 'sa-sb'                                  \
 --encoder_only false                                 \
 --emb_dim 1024                                       \
 --n_layers 6                                         \

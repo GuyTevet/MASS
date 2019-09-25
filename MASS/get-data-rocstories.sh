@@ -67,22 +67,22 @@ VALID_TGT_RAW=$ROCSPATH/valid.end.txt
 TEST_SRC_RAW=$ROCSPATH/test.story.txt
 TEST_TGT_RAW=$ROCSPATH/test.end.txt
 
-TRAIN_SRC=$PARA_PATH/train.st-en.st
-TRAIN_TGT=$PARA_PATH/train.st-en.en
-VALID_SRC=$PARA_PATH/valid.st-en.st
-VALID_TGT=$PARA_PATH/valid.st-en.en
-TEST_SRC=$PARA_PATH/test.st-en.st
-TEST_TGT=$PARA_PATH/test.st-en.en
+TRAIN_SRC=$PARA_PATH/train.sa-sb.sa
+TRAIN_TGT=$PARA_PATH/train.sa-sb.sb
+VALID_SRC=$PARA_PATH/valid.sa-sb.sa
+VALID_TGT=$PARA_PATH/valid.sa-sb.sb
+TEST_SRC=$PARA_PATH/test.sa-sb.sa
+TEST_TGT=$PARA_PATH/test.sa-sb.sb
 
-TRAIN_SRC_BPE=$PROC_PATH/train.st-en.st
-TRAIN_TGT_BPE=$PROC_PATH/train.st-en.en
-VALID_SRC_BPE=$PROC_PATH/valid.st-en.st
-VALID_TGT_BPE=$PROC_PATH/valid.st-en.en
-TEST_SRC_BPE=$PROC_PATH/test.st-en.st
-TEST_TGT_BPE=$PROC_PATH/test.st-en.en
+TRAIN_SRC_BPE=$PROC_PATH/train.sa-sb.sa
+TRAIN_TGT_BPE=$PROC_PATH/train.sa-sb.sb
+VALID_SRC_BPE=$PROC_PATH/valid.sa-sb.sa
+VALID_TGT_BPE=$PROC_PATH/valid.sa-sb.sb
+TEST_SRC_BPE=$PROC_PATH/test.sa-sb.sa
+TEST_TGT_BPE=$PROC_PATH/test.sa-sb.sb
 
 BPE_CODES=$PROC_PATH/codes
-FULL_VOCAB=$PROC_PATH/vocab.st-en
+FULL_VOCAB=$PROC_PATH/vocab.sa-sb
 
 if [ ! -f $TRAIN_SRC_RAW ]; then
 	gzip -d $TRAIN_SRC_RAW.gz
