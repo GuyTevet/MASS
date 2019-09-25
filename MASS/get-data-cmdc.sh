@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-ROCSPATH=ROCStories
+CMDCPATH=cmdc
 
 CODES=40000
 
@@ -10,8 +10,8 @@ while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
-  --rocspath)
-	ROCSPATH="$2"; shift 2;;
+  --cmdcpath)
+	CMDCPATH="$2"; shift 2;;
   --reload_codes)
 	RELOAD_CODES="$2"; shift 2;;
   --reload_vocab)
@@ -43,7 +43,7 @@ MAIN_PATH=$PWD
 TOOLS_PATH=$PWD/tools
 DATA_PATH=$PWD/data
 PARA_PATH=$DATA_PATH/para/
-PROC_PATH=$DATA_PATH/processed/rocs/
+PROC_PATH=$DATA_PATH/processed/cmdc/
 
 # create paths
 mkdir -p $TOOLS_PATH
@@ -57,29 +57,29 @@ MOSES=$TOOLS_PATH/mosesdecoder
 FASTBPE_DIR=$TOOLS_PATH/fastBPE
 FASTBPE=$TOOLS_PATH/fastBPE/fast
 
-TRAIN_SRC_RAW=$ROCSPATH/train.story.txt
-TRAIN_TGT_RAW=$ROCSPATH/train.end.txt
-VALID_SRC_RAW=$ROCSPATH/valid.story.txt
-VALID_TGT_RAW=$ROCSPATH/valid.end.txt
-TEST_SRC_RAW=$ROCSPATH/test.story.txt
-TEST_TGT_RAW=$ROCSPATH/test.end.txt
+TRAIN_SRC_RAW=$CMDCPATH/train.enc.txt
+TRAIN_TGT_RAW=$CMDCPATH/train.dec.txt
+VALID_SRC_RAW=$CMDCPATH/test.enc.txt
+VALID_TGT_RAW=$CMDCPATH/test.dec.txt
+TEST_SRC_RAW=$CMDCPATH/test.enc.txt
+TEST_TGT_RAW=$CMDCPATH/test.dec.txt
 
-TRAIN_SRC=$PARA_PATH/train.sa-sb.sa
-TRAIN_TGT=$PARA_PATH/train.sa-sb.sb
-VALID_SRC=$PARA_PATH/valid.sa-sb.sa
-VALID_TGT=$PARA_PATH/valid.sa-sb.sb
-TEST_SRC=$PARA_PATH/test.sa-sb.sa
-TEST_TGT=$PARA_PATH/test.sa-sb.sb
+TRAIN_SRC=$PARA_PATH/train.ra-rb.ra
+TRAIN_TGT=$PARA_PATH/train.ra-rb.rb
+VALID_SRC=$PARA_PATH/valid.ra-rb.ra
+VALID_TGT=$PARA_PATH/valid.ra-rb.rb
+TEST_SRC=$PARA_PATH/test.ra-rb.ra
+TEST_TGT=$PARA_PATH/test.ra-rb.rb
 
-TRAIN_SRC_BPE=$PROC_PATH/train.sa-sb.sa
-TRAIN_TGT_BPE=$PROC_PATH/train.sa-sb.sb
-VALID_SRC_BPE=$PROC_PATH/valid.sa-sb.sa
-VALID_TGT_BPE=$PROC_PATH/valid.sa-sb.sb
-TEST_SRC_BPE=$PROC_PATH/test.sa-sb.sa
-TEST_TGT_BPE=$PROC_PATH/test.sa-sb.sb
+TRAIN_SRC_BPE=$PROC_PATH/train.ra-rb.ra
+TRAIN_TGT_BPE=$PROC_PATH/train.ra-rb.rb
+VALID_SRC_BPE=$PROC_PATH/valid.ra-rb.ra
+VALID_TGT_BPE=$PROC_PATH/valid.ra-rb.rb
+TEST_SRC_BPE=$PROC_PATH/test.ra-rb.ra
+TEST_TGT_BPE=$PROC_PATH/test.ra-rb.rb
 
 BPE_CODES=$PROC_PATH/codes
-FULL_VOCAB=$PROC_PATH/vocab.sa-sb
+FULL_VOCAB=$PROC_PATH/vocab.ra-rb
 
 if [ ! -f $TRAIN_SRC_RAW ]; then
 	gzip -d $TRAIN_SRC_RAW.gz
