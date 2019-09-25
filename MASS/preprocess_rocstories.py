@@ -11,7 +11,7 @@ def main(params):
               for _set, _part in zip(['train', 'valid', 'test'] * 2, ['story'] * 3 + ['end'] *3 )}
     num_lines = sum(sum(1 for row in fp) - 1 for fp in fp_in) # substracting headlines
     [fp.seek(0) for fp in fp_in]
-    num_valid_test_lines = int(num_lines * 0.05)
+    num_valid_test_lines = 1000 # int(num_lines * 0.05)
     num_train_lines = num_lines - (num_valid_test_lines * 2)
     row_i = 0
     cur_set = 'train'
