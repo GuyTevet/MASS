@@ -21,10 +21,12 @@ if [ ! -e "./$cmdc" ]; then
     wget -c 'https://www.dropbox.com/s/48ro4759jaikque/test.dec?dl=0' -O $cmdc/test.dec.txt
     wget -c 'https://www.dropbox.com/s/gu54ngk3xpwite4/train.enc?dl=0' -O $cmdc/train.enc.txt
     wget -c 'https://www.dropbox.com/s/g3z2msjziqocndl/train.dec?dl=0' -O $cmdc/train.dec.txt
+    python preprocess_cmdc.py --dirpath $cmdc
 fi
 
 # process roc stories
 echo "== Process Cornell Movie Dialog Corpus =="
+rm -r ./data/para # delete cached files
 bash get-data-cmdc.sh \
      --replace_ner true \
      --replace_unk true \

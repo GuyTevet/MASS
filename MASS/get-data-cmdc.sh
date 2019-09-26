@@ -103,11 +103,14 @@ else
 fi
 
 if ! [[ -f $TRAIN_SRC ]]; then
-	eval "cat $TRAIN_SRC_RAW | $preprocess > $TRAIN_SRC"
+	 # eval "cat $TRAIN_SRC_RAW | $preprocess > $TRAIN_SRC"
+	 cat $TRAIN_SRC_RAW > $TRAIN_SRC
 fi
 
 if ! [[ -f $TRAIN_TGT ]]; then
-	eval "cat $TRAIN_TGT_RAW | $preprocess > $TRAIN_TGT"
+	 # eval "cat $TRAIN_TGT_RAW | $preprocess > $TRAIN_TGT"
+	 cat $TRAIN_TGT_RAW > $TRAIN_TGT
+
 fi
 
 if [ ! -f "$BPE_CODES" ] && [ -f "$RELOAD_CODES" ]; then
@@ -144,10 +147,15 @@ if ! [[ -f "$FULL_VOCAB" ]]; then
 fi
 echo "Full vocab in: $FULL_VOCAB"
 
-eval "cat $VALID_SRC_RAW | $preprocess > $VALID_SRC"
-eval "cat $VALID_TGT_RAW | $preprocess > $VALID_TGT"
-eval "cat $TEST_SRC_RAW | $preprocess > $TEST_SRC"
-eval "cat $TEST_TGT_RAW | $preprocess > $TEST_TGT"
+# eval "cat $VALID_SRC_RAW | $preprocess > $VALID_SRC"
+# eval "cat $VALID_TGT_RAW | $preprocess > $VALID_TGT"
+# eval "cat $TEST_SRC_RAW | $preprocess > $TEST_SRC"
+# eval "cat $TEST_TGT_RAW | $preprocess > $TEST_TGT"
+
+cat $VALID_SRC_RAW > $VALID_SRC
+cat $VALID_TGT_RAW > $VALID_TGT
+cat $TEST_SRC_RAW > $TEST_SRC
+cat $TEST_TGT_RAW > $TEST_TGT
 
 $FASTBPE applybpe $VALID_SRC_BPE $VALID_SRC $BPE_CODES 
 $FASTBPE applybpe $VALID_TGT_BPE $VALID_TGT $BPE_CODES 
