@@ -48,6 +48,7 @@ def get_parser():
     parser.add_argument("--exp_id", type=str, default="", help="Experiment ID")
     parser.add_argument("--fp16", type=bool_flag, default=False, help="Run model with float16")
     parser.add_argument("--batch_size", type=int, default=32, help="Number of sentences per batch")
+    parser.add_argument("--num_lines", type=int, default=1000, help="Number of sentences to translate")
 
     # model / output paths
     parser.add_argument("--model_path", type=str, default="", help="Model path")
