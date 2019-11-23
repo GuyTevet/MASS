@@ -149,6 +149,7 @@ def get_parser():
     parser.add_argument("--validation_metrics", type=str, default="",
                         help="Validation metrics")
 
+
     # training coefficients
     parser.add_argument("--lambda_mlm", type=str, default="1",
                         help="Prediction coefficient (MLM)")
@@ -204,7 +205,8 @@ def get_parser():
                         help="Only run evaluations")
     parser.add_argument("--eval_output", type=str, default='eval.txt',
                         help="Output text file for eval_only mode")
-
+    parser.add_argument("--softmax_temperature", type=float, default=1.,
+                        help="For evaluation only")
     # debug
     parser.add_argument("--debug_train", type=bool_flag, default=False,
                         help="Use valid sets for train sets (faster loading)")

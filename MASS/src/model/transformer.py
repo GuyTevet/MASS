@@ -88,6 +88,7 @@ class PredLayer(nn.Module):
         self.asm = params.asm
         self.n_words = params.n_words
         self.pad_index = params.pad_index
+        self.temperature = 1. if not params.eval_only else params.softmax_temperature
         dim = params.emb_dim
 
         if params.asm is False:
@@ -109,7 +110,7 @@ class PredLayer(nn.Module):
 
         if self.asm is False:
             scores = self.proj(x).view(-1, self.n_words)
-            loss = F.cross_entropy(scores, y, reduction='elementwise_mean')
+            loss = F.cross_entropy(scores / self.temperature, y, reduction='elementwise_mean')
         else:
             _, loss = self.proj(x, y)
             scores = self.proj.log_prob(x) if get_scores else None
