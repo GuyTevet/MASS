@@ -203,8 +203,8 @@ def get_parser():
                         help="Evaluate BLEU score during MT training")
     parser.add_argument("--eval_only", type=bool_flag, default=False,
                         help="Only run evaluations")
-    parser.add_argument("--eval_output", type=str, default='eval.txt',
-                        help="Output text file for eval_only mode")
+    parser.add_argument("--eval_output", type=str, default='eval.json',
+                        help="Output json file for eval_only mode")
     parser.add_argument("--softmax_temperature", type=float, default=1.,
                         help="For evaluation only")
     # debug
@@ -276,7 +276,7 @@ def main(params):
         logger.info("__log__:%s" % json.dumps(scores))
         with open(params.eval_output, 'w') as f:
             scores['temperature'] = params.softmax_temperature
-            json.dump(dict(scores), f, indent=4)
+            json.dump(scores.__dict__, f, indent=4)
         exit()
 
     # set sampling probabilities for training
