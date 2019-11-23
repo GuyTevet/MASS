@@ -2,7 +2,7 @@
 MODEL=mass_summarization_1024.pth
 
 python train.py                                      \
---exp_name mass_respgen                        \
+--exp_name mass_respgen_lowercase                        \
 --data_path ./data/processed/cmdc/                   \
 --lgs 'ra-rb'                                        \
 --mt_steps 'ra-rb'                                  \
