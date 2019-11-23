@@ -276,7 +276,7 @@ def main(params):
         logger.info("__log__:%s" % json.dumps(scores))
         with open(params.eval_output, 'w') as f:
             scores['temperature'] = params.softmax_temperature
-            json.dump(scores.__dict__, f, indent=4)
+            json.dump(dict(scores), f, indent=4)
         exit()
 
     # set sampling probabilities for training

@@ -88,7 +88,7 @@ class PredLayer(nn.Module):
         self.asm = params.asm
         self.n_words = params.n_words
         self.pad_index = params.pad_index
-        self.temperature = 1. if not params.eval_only else params.softmax_temperature
+        self.temperature = 1. if (not params.eval_only) or (params.softmax_temperature < 0.) else params.softmax_temperature
         dim = params.emb_dim
 
         if params.asm is False:
