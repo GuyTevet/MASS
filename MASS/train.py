@@ -325,8 +325,8 @@ def main(params):
         logger.info("============ End of epoch %i ============" % trainer.epoch)
 
         # evaluate perplexity
-        scores = evaluator.run_all_evals(trainer)
-
+        # scores = evaluator.run_all_evals(trainer)
+        scores = {}
         # print / JSON log
         for k, v in scores.items():
             logger.info("%s -> %.6f" % (k, v))

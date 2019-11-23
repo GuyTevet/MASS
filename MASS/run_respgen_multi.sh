@@ -1,11 +1,14 @@
 # MODEL=mass_en_1024.pth
 MODEL=mass_summarization_1024.pth
 
-python train.py                                      \
---exp_name mass_storygen_lowercase                        \
---data_path ./data/processed/rocs/                   \
---lgs 'sa-sb'                                        \
---mt_steps 'sa-sb'                                  \
+export NGPU=2
+CUDA_VISIBLE_DEVICES=0,3
+
+python -m torch.distributed.launch --nproc_per_node=$NGPU train.py                                      \
+--exp_name mass_respgen_lowercase                        \
+--data_path ./data/processed/cmdc/                   \
+--lgs 'ra-rb'                                        \
+--mt_steps 'ra-rb'                                  \
 --encoder_only false                                 \
 --emb_dim 1024                                       \
 --n_layers 6                                         \
