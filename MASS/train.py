@@ -202,6 +202,8 @@ def get_parser():
                         help="Evaluate BLEU score during MT training")
     parser.add_argument("--eval_only", type=bool_flag, default=False,
                         help="Only run evaluations")
+    parser.add_argument("--eval_output", type=str, default='eval.txt',
+                        help="Output text file for eval_only mode")
 
     # debug
     parser.add_argument("--debug_train", type=bool_flag, default=False,
@@ -270,6 +272,8 @@ def main(params):
         for k, v in scores.items():
             logger.info("%s -> %.6f" % (k, v))
         logger.info("__log__:%s" % json.dumps(scores))
+        with open(params.eval_output, 'a') as f:
+            f.write('{}\n'.format(scores))
         exit()
 
     # set sampling probabilities for training
