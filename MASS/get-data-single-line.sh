@@ -48,7 +48,7 @@ do
 
     # copy validation to train set (just as a place holder! this data is for evaluation only)
     cp ${VALID_SRC_BPE}.pth ${TRAIN_LINE_SRC_BPE}.pth
-    cp ${VALID_SRC_BPE}.pth ${TRAIN_LINE_SRC_BPE}.pth
+    cp ${VALID_TGT_BPE}.pth ${TRAIN_LINE_TGT_BPE}.pth
 
 done
 
