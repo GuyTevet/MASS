@@ -41,10 +41,10 @@ do
     sed "${i}q;d" $TEST_TGT_BPE >> $TEST_LINE_TGT_BPE
 
     # generate .pth files
-    python $MAIN_PATH/preprocess.py $FULL_VOCAB $VALID_SRC_BPE
-    python $MAIN_PATH/preprocess.py $FULL_VOCAB $VALID_TGT_BPE
-    python $MAIN_PATH/preprocess.py $FULL_VOCAB $TEST_SRC_BPE
-    python $MAIN_PATH/preprocess.py $FULL_VOCAB $TEST_TGT_BPE
+    python $MAIN_PATH/preprocess.py $FULL_VOCAB $VALID_LINE_SRC_BPE
+    python $MAIN_PATH/preprocess.py $FULL_VOCAB $VALID_LINE_TGT_BPE
+    python $MAIN_PATH/preprocess.py $FULL_VOCAB $TEST_LINE_SRC_BPE
+    python $MAIN_PATH/preprocess.py $FULL_VOCAB $TEST_LINE_TGT_BPE
 
     # copy validation to train set (just as a place holder! this data is for evaluation only)
     cp ${VALID_SRC_BPE}.pth ${TRAIN_LINE_SRC_BPE}.pth
