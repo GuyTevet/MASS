@@ -22,8 +22,8 @@ VALID_LINES="$(cat $VALID_SRC_BPE | wc -l)"
 echo "Found [$VALID_LINES] lines in set [$VALID_SRC_BPE]"
 
 # create single line TEST set (assuming test set smaller or equal to validation set)
-#for i in $(seq 1 $TEST_LINES)
-for i in $(seq 1 3)
+for i in $(seq 1 $TEST_LINES)
+#for i in $(seq 1 3)
 do
     TARGET_PATH=$OUT_PATH/line_$i
     mkdir $TARGET_PATH
