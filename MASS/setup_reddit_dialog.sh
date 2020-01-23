@@ -1,4 +1,4 @@
-rocs=ROCStories # the path of your roc stories dataset
+reddit=reddit_dialog # the path of your roc stories dataset
 
 # install tools
 if [ ! -e "./tools" ]; then
@@ -13,23 +13,19 @@ if [ ! -e "./vocab_en" ]; then
     wget "https://modelrelease.blob.core.windows.net/mass/codes_en"
 fi
 
-# download ROC stories
-if [ ! -e "./$rocs" ]; then
-    echo "== Download ROC Stories =="
-    mkdir ROCStories
-    wget https://goo.gl/0OYkPK -O $rocs/$rocs-2017.csv
-    wget https://goo.gl/7R59b1 -O $rocs/$rocs-2016.csv
-    python preprocess_rocstories.py --dirpath $rocs
+# assert data exists
+if [ ! -e "./$reddit" ]; then
+    echo "Error: You should first download the data manually from Dropbox and put it in [$reddit] dir!"
 fi
 
 # process roc stories
-echo "== Process ROC Stories =="
-bash get-data-rocstories.sh \
+echo "== Process Reddit dialog =="
+bash get-data-reddit.sh \
      --replace_ner true \
      --replace_unk true \
      --reload_vocab vocab_en \
      --reload_codes codes_en \
-     --rocspath $rocs
+     --rocspath $reddit
 
 # download pre-trained model
 if [ ! -e "./mass_summarization_1024.pth" ]; then

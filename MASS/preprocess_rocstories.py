@@ -19,7 +19,7 @@ def main(params):
     for fp in fp_in:
         reader = csv.DictReader(fp)
         for row in reader:
-            row = {k: v.lower() for k, v in row.items()}
+            # row = {k: v.lower() for k, v in row.items()}
             fp_out['{}-story'.format(cur_set)].write('{}. {} {} {} {}\n'.format(row['storytitle'], row['sentence1'], row['sentence2'], row['sentence3'], row['sentence4']))
             fp_out['{}-end'.format(cur_set)].write('{}\n'.format(row['sentence5']))
 
