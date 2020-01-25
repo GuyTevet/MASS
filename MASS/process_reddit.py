@@ -28,7 +28,8 @@ if __name__ == '__main__':
             import matplotlib.pyplot as plt
             hist, _, _ = plt.hist(context_lens, bins=max(context_lens))
 
-        for i in range(2):
-            with open(out_path[name][i], 'w') as f:
-                for l in filtered_lines:
-                    f.write(l[i] + '\n')
+        for type_i in range(2):
+            with open(out_path[name][type_i], 'w') as f:
+                n_lines = len(filtered_lines) if name == 'train' else min(len(filtered_lines), 1000)
+                for line_i in range(n_lines):
+                    f.write(filtered_lines[line_i][type_i] + '\n')
