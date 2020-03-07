@@ -24,7 +24,7 @@ python translate_ensemble.py \
 --beam 5 \
 --batch_size 32 \
 --model_path ./dumped/mass_reddit_dialog/bih7q9ocyz/checkpoint.pth \
---output_path $OUTPATH < ./data/processed/reddit/test.ca-cb.sa \
+--output_path $OUTPATH < ./data/processed/reddit/test.ca-cb.ca \
 --uni_sampling \
 --samples_per_source $SAMPLES \
 --temperature $TEMP 

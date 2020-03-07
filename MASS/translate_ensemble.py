@@ -65,8 +65,36 @@ def get_parser():
     parser.add_argument("--uni_sampling", action='store_true', help='Activite to use uniform sampling instead of a beam search.')
     parser.add_argument("--samples_per_source", type=int, default=1, help='Number of samples per source sentece.')
     parser.add_argument("--temperature", type=float, default=1., help='Softmax temperature. Relevant for uniform sampling onnly.')
+    parser.add_argument("--p", type=float, default=0., help='P for top-p sampling.')
 
     return parser
+
+def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')):
+    """ Filter a distribution of logits using top-k and/or nucleus (top-p) filtering
+            Args:
+                logits: logits distribution shape (vocabulary size)
+                top_k >0: keep only top k tokens with highest probability (top-k filtering).
+                top_p >0.0: keep the top tokens with cumulative probability >= top_p (nucleus filtering).
+                    Nucleus filtering is described in Holtzman et al. (http://arxiv.org/abs/1904.09751)
+    """
+    # code was taken from
+    assert logits.dim() == 1  # batch size 1 for now - could be updated for more but the code would be less clear
+    top_k = min(top_k, logits.size(-1))  # Safety check
+    if top_k > 0:
+        # Remove all tokens with a probability less than the last token of the top-k
+        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+        logits[indices_to_remove] = filter_value
+    if top_p > 0.0:
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+        # Remove tokens with cumulative probability above the threshold
+        sorted_indices_to_remove = cumulative_probs > top_p
+        # Shift the indices to the right to keep also the first token above the threshold
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+        indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        logits[indices_to_remove] = filter_value
+    return logits
 
 def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size, length_penalty, early_stopping, max_len=200, params=None):
     assert params is not None
@@ -122,8 +150,11 @@ def generate_uni_sample(decoders, src_encodeds, src_len, tgt_lang_id, beam_size,
             assert tensor.size() == (1, bs * beam_size, decoder.dim)
             tensor = tensor.data[-1, :, :]  # (bs * beam_size, dim)
             scores = decoder.pred_layer.get_scores(tensor)  # (bs * beam_size, n_words)
-            scores = F.softmax(scores / params.temperature, dim=-1)  # (bs * beam_size, n_words)
-            samples = torch.multinomial(scores, 1).t()
+            scores = scores / params.temperature  # (bs * beam_size, n_words)
+            for sample_i in range(scores.size()[0]):
+                scores[sample_i] = top_k_top_p_filtering(scores[sample_i], top_k=0, top_p=params.p) # k = 0 -> no top k
+            probs = F.softmax(scores, dim=-1)  # (bs * beam_size, n_words)
+            samples = torch.multinomial(probs, 1).t()
 
             for i in range(bs):
                 if done[i]:
